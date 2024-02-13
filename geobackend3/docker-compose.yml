@@ -1,0 +1,51 @@
+version: '3'
+services:
+  client_app3:
+    build: ./client_geo3
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    container_name: client_app3
+    volumes:
+      - "./client_geo3/public/swagger.json:/client_app/public/swagger.json"
+      - ".env:/client_app/.env"
+    networks:
+      - myNetwork
+
+  server_geo3:
+    build: ./geo3
+    ports:
+      - ${RPC_PORT}:${RPC_PORT}
+    container_name: server_geo3
+    volumes:
+      - "./geo3/.env:/server_app/.env"
+    networks:
+      - myNetwork 
+      - myNetworkDB
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:14.4-alpine
+    container_name: postgres_Geo3
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - ${PORT_DB}:5432
+    networks:
+      - myNetworkDB
+
+  redis:
+    image: redis:latest
+    container_name: redis3
+    ports:
+      - ${PORT_REDIS}:6379
+    networks:
+      - myNetworkDB
+
+networks:
+  myNetworkDB:
+  myNetwork:
+    name: local
