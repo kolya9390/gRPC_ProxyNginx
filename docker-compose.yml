@@ -5,7 +5,7 @@ services:
     volumes:
       - "./client_geo1/public/swagger.json:/client_app/public/swagger.json"
       - ".env:/client_app/.env"
-    hostname: client_app
+   # hostname: client_app
     ports:
       - "8081-8083:8081"
     deploy:
@@ -18,7 +18,7 @@ services:
     build: ./geo1
     volumes:
       - "./geo1/.env:/server_app/.env"
-    hostname: server_geo
+    #hostname: server_geo
     ports:
       - "1001-1003:1001"
     networks:
