@@ -1,0 +1,66 @@
+version: '3'
+services:
+  client_app:
+    build: ./client_geo1
+    volumes:
+      - "./client_geo1/public/swagger.json:/client_app/public/swagger.json"
+      - ".env:/client_app/.env"
+    hostname: client_app
+    ports:
+      - "8081-8083:8081"
+    deploy:
+      mode: replicated
+      replicas: 3
+    networks:
+      - myNetwork
+
+  server_geo:
+    build: ./geo1
+    volumes:
+      - "./geo1/.env:/server_app/.env"
+    hostname: server_geo
+    ports:
+      - "1001-1003:1001"
+    networks:
+      - myNetwork 
+      - myNetworkDB
+    deploy:
+      mode: replicated
+      replicas: 3
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:14.4-alpine
+    container_name: postgres_Geo
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - 5432:5432
+    networks:
+      - myNetworkDB
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - myNetworkDB
+  nginx_proxy:
+    image: nginx:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    container_name: nginx_proxy
+    networks:
+      - myNetwork
+
+networks:
+  myNetworkDB:
+  myNetwork:
+    name: local
